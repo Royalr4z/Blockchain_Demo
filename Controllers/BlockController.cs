@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BlockchainDemo.Models;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using Newtonsoft.Json;
 using System.Text;
 using System;
@@ -13,52 +14,65 @@ namespace BlockchainDemo.Controllers {
 
     public class BlockController : ControllerBase {
     
-        List<BlockModel> chain = [];
+        public static List<BlockModel> chain = new List<BlockModel>();
 
-        private BlockModel create_block(int proof, string previous_hash) {
+        static string CalculateSHA256Hash(string input) {
 
-            List<TransactionModel> list_transaction = [];
+            using (SHA256 sha256 = SHA256.Create()) {
 
-            var transactions = new TransactionModel() {
-                index = 0,
-                id_transaction = string.Empty,
-                from = string.Empty,
-                towards = string.Empty,
-                value = 0,
-                rate = 0
-            };
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+                StringBuilder builder = new StringBuilder();
 
-            list_transaction.Add(transactions);
+                for (int i = 0; i < bytes.Length; i++) {
+        
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+
+                return builder.ToString();
+            }
+        }
+
+        private static byte[] ConvertListToHexadecimal(List<BlockModel> lista) {
+            string json = JsonConvert.SerializeObject(lista);
+            return Encoding.UTF8.GetBytes(json);
+        }
+
+        public BlockModel create_block(string previous_hash, List<TransactionModel> list_transaction) {
 
             var block = new BlockModel() {
                 index = chain.Count,
-                nonce = proof,
+                nonce = 1,
                 timestamp = DateTime.Now.ToString(),
                 transactions = list_transaction,
-                hash = "hash_teste",
+                hash = "0001",
                 previous_hash = previous_hash,
             };
+
+            while (block.hash.Substring(0, 4) != "0000") {
+
+                // Serializar o bloco para uma string JSON
+                string blockJson = JsonConvert.SerializeObject(block);
+                string calculatedHash = CalculateSHA256Hash(blockJson);
+                block.hash = calculatedHash;
+
+                block.nonce += 1;
+            }
 
             chain.Add(block);
 
             return block;
         }
 
-        public static byte[] ConvertListToHexadecimal(List<BlockModel> lista) {
-            string json = JsonConvert.SerializeObject(lista);
-            return Encoding.UTF8.GetBytes(json);
-        }
-
-        private List<BlockModel> get_chain() {
+        public List<BlockModel> get_chain() {
 
             if (chain.Count == 0) {
-                create_block(1, "0");
+                create_block("0", []);
             }
-            
-            // Convertendo lista para uma representação binária
+
+            // Convertendo lista para uma representação Hexadecimal
             byte[] bytes = ConvertListToHexadecimal(chain);
 
-            Console.WriteLine("Lista em binário: " + BitConverter.ToString(bytes).Replace("-", ""));
+            // Console.WriteLine("Lista em Hexadecimal: " + BitConverter.ToString(bytes).Replace("-", ""));
 
             return chain;
         }
