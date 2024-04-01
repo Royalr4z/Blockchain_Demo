@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BlockchainDemo.Models;
+using BlockchainDemo.Config;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
@@ -8,12 +9,44 @@ using System;
 
 
 namespace BlockchainDemo.Controllers {
+    public class MainController : ControllerBase {
 
-    [Route("[controller]")]
-    [ApiController]
-
-    public class BlockController : ControllerBase {
+        public List<TransactionModel> mine_block(dynamic dadosObtidos) {
     
+            // Convertendo os Dados Obtidos para JSON
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
+            dynamic dados = JsonConvert.DeserializeObject<dynamic>(jsonString);
+
+            List<TransactionModel> lista_t = dados["transactions"].ToObject<List<TransactionModel>>();
+            List<TransactionModel> transactions = new List<TransactionModel>();
+
+            Validate validator = new Validate();
+
+            int index = 1;
+
+            foreach (var item in lista_t) {
+
+                validator.existsOrError(item.from, @"Informe o remetente - Index: " + index);
+                validator.existsOrError(item.towards, @"Informe o destinatário - Index: " + index);
+
+                validator.existsDecimalOrError(item.value, @"Informe o valor da Transação");
+                validator.existsDecimalOrError(item.rate, @"Informe o valor da Taxa");
+
+                item.timestamp = DateTime.Now.ToString();
+                item.index = index;
+
+                // Serializar o bloco para uma string JSON
+                string transactionJson = JsonConvert.SerializeObject(item);
+                string calculatedHash = CalculateSHA256Hash(transactionJson);
+                item.id_transaction = calculatedHash;
+
+                transactions.Add(item);
+                index += 1;
+            }
+
+            return transactions;
+        }
+
         public static List<BlockModel> chain = new List<BlockModel>();
 
         public string CalculateSHA256Hash(string input) {
@@ -76,13 +109,5 @@ namespace BlockchainDemo.Controllers {
 
             return chain;
         }
-
-        [HttpGet]
-        public ActionResult<List<BlockModel>> Get_blockchain() {
-
-            return Ok(get_chain());
-        }
-
     }
-
 }
