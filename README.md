@@ -15,28 +15,32 @@
 
 A seguir estão as principais rotas e APIs fornecidas pelo backend.
 
-### 1. Block
+### 1. Blockchain
 
+---
 - **Descrição:** API de Visualização da Blockchain
 - **Método HTTP:** [GET]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X GET http://localhost:7000/Block
+  curl -X GET http://localhost:7000/Blockchain
 
-### 2. mineblock
-
+---
 - **Descrição:** API de Criação de um Novo Bloco
 - **Método HTTP:** [POST]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X POST http://localhost:7000/mineblock -d '{
+  curl -X POST http://localhost:7000/Blockchain -d '{
       "transactions": [
-          { "id_transaction": "id_index-1", "from": "de", "towards": "para", "value": 0.2, "rate": 0.01 },
-          { "id_transaction": "id_index-2", "from": "de", "towards": "para", "value": 0.7, "rate": 0.01 },
-          { "id_transaction": "id_index-3", "from": "de", "towards": "para", "value": 0.01, "rate": 0.001 },
-          { "id_transaction": "id_index-4", "from": "de", "towards": "para", "value": 0.5, "rate": 0.01 },
-          { "id_transaction": "id_index-5", "from": "de", "towards": "para", "value": 0.1, "rate": 0.01 },
-          { "id_transaction": "id_index-6", "from": "de", "towards": "para", "value": 0.4, "rate": 0.01 }
+          { "from": "de", "towards": "para", "value": 0.2, "rate": 0.01 },
+          { "from": "de", "towards": "para", "value": 0.7, "rate": 0.01 },
+          { "from": "de", "towards": "para", "value": 0.01, "rate": 0.001 },
+          { "from": "de", "towards": "para", "value": 0.5, "rate": 0.01 },
+          { "from": "de", "towards": "para", "value": 0.1, "rate": 0.01 },
+          { "from": "de", "towards": "para", "value": 0.4, "rate": 0.01 }
       ]
   }' -H "Content-Type: application/json"
 
+
+# Contribuição
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues relatando problemas, sugestões ou novos recursos que gostaria de ver. Se deseja contribuir com código, por favor, envie um pull request.
