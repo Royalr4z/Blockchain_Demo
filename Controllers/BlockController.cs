@@ -16,7 +16,7 @@ namespace BlockchainDemo.Controllers {
     
         public static List<BlockModel> chain = new List<BlockModel>();
 
-        static string CalculateSHA256Hash(string input) {
+        public string CalculateSHA256Hash(string input) {
 
             using (SHA256 sha256 = SHA256.Create()) {
 

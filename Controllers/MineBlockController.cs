@@ -30,14 +30,21 @@ namespace BlockchainDemo.Controllers {
 
             foreach (var item in lista_t) {
 
-                validator.existsOrError(item.id_transaction, @"Informe o Id da Transação");
                 validator.existsOrError(item.from, @"Informe o remetente - Index: " + index);
                 validator.existsOrError(item.towards, @"Informe o destinatário - Index: " + index);
 
                 validator.existsDecimalOrError(item.value, @"Informe o valor da Transação");
                 validator.existsDecimalOrError(item.rate, @"Informe o valor da Taxa");
 
+                var BlockController = new BlockController();
+
+                item.timestamp = DateTime.Now.ToString();
                 item.index = index;
+
+                // Serializar o bloco para uma string JSON
+                string transactionJson = JsonConvert.SerializeObject(item);
+                string calculatedHash = BlockController.CalculateSHA256Hash(transactionJson);
+                item.id_transaction = calculatedHash;
 
                 transactions.Add(item);
                 index += 1;
