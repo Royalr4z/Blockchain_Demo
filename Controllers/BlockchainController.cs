@@ -54,12 +54,12 @@ namespace BlockchainDemo.Controllers {
 //
 //        {
 //            "transactions": [
-//                  { "from": "egqegq", "towards": "para", "value": 0.2, "rate": 0.01 },
-//                  { "from": "egqegq", "towards": "para", "value": 0.7, "rate": 0.01 },
-//                  { "from": "egqegq", "towards": "para", "value": 0.01, "rate": 0.001 },
-//                  { "from": "egqegq", "towards": "para", "value": 0.5, "rate": 0.01 },
-//                  { "from": "egqegq", "towards": "para", "value": 0.1, "rate": 0.01 },
-//                  { "from": "egqegq", "towards": "para", "value": 0.4, "rate": 0.01 }
+//                  { "from": "de", "towards": "para", "value": 0.2, "rate": 0.01 },
+//                  { "from": "de", "towards": "para", "value": 0.7, "rate": 0.01 },
+//                  { "from": "de", "towards": "para", "value": 0.01, "rate": 0.001 },
+//                  { "from": "de", "towards": "para", "value": 0.5, "rate": 0.01 },
+//                  { "from": "de", "towards": "para", "value": 0.1, "rate": 0.01 },
+//                  { "from": "de", "towards": "para", "value": 0.4, "rate": 0.01 }
 //            ]
 //        }
 //

@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
 using System.Text;
+using System.IO;
 using System;
 
 
 namespace BlockchainDemo.Controllers {
-    public class MainController : ControllerBase {
+    public class MainController {
 
         public List<TransactionModel> mine_block(dynamic dadosObtidos) {
     
@@ -70,6 +71,25 @@ namespace BlockchainDemo.Controllers {
             return Encoding.UTF8.GetBytes(json);
         }
 
+        private static List<BlockModel> ConvertHexadecimalToList(string hex) {
+            hex = hex.Replace(" ", "");
+
+            int numberChars = hex.Trim().Length;
+            byte[] bytes = new byte[numberChars / 2];
+
+            for (int i = 0; i < numberChars; i += 2) {
+                // Verifica se há caracteres suficientes para formar uma substring de dois caracteres
+                if (i + 1 < numberChars) { 
+                    string substring = hex.Substring(i, 2);
+
+                    bytes[i / 2] = Convert.ToByte(substring, 16);
+                }
+            }
+
+            string json = Encoding.UTF8.GetString(bytes);
+            return JsonConvert.DeserializeObject<List<BlockModel>>(json);
+        }
+
         public BlockModel create_block(string previous_hash, List<TransactionModel> list_transaction) {
 
             var block = new BlockModel() {
@@ -98,14 +118,31 @@ namespace BlockchainDemo.Controllers {
 
         public List<BlockModel> get_chain() {
 
-            if (chain.Count == 0) {
-                create_block("0", []);
+            string caminhoArquivo = "blockchain.hex";
+            string conteudoHexadecimal = "";
+
+            if (File.Exists(caminhoArquivo)) {
+
+                // Lê o conteúdo hexadecimal do arquivo
+                using (StreamReader sr = new StreamReader(caminhoArquivo)) {
+                    conteudoHexadecimal = sr.ReadToEnd();
+                }
+            }
+
+            if (chain.Count == 0 && conteudoHexadecimal == "") {
+                    create_block("0", []);
+            } else if (chain.Count == 0 && conteudoHexadecimal != "") {
+                chain = ConvertHexadecimalToList(conteudoHexadecimal);
             }
 
             // Convertendo lista para uma representação Hexadecimal
             byte[] bytes = ConvertListToHexadecimal(chain);
+            string hex = BitConverter.ToString(bytes).Replace("-", "");
 
-            // Console.WriteLine("Lista em Hexadecimal: " + BitConverter.ToString(bytes).Replace("-", ""));
+            // Escreva a representação hexadecimal no arquivo
+            using (StreamWriter sw = new StreamWriter(caminhoArquivo)) {
+                sw.WriteLine(hex);
+            }
 
             return chain;
         }

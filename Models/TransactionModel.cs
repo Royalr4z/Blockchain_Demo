@@ -13,6 +13,7 @@ namespace BlockchainDemo.Models {
         public TransactionModel() {
             index = 0;
             id_transaction = string.Empty;
+            timestamp = string.Empty;
             from = string.Empty;
             towards = string.Empty;
             value = 0;
