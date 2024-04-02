@@ -40,7 +40,6 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
       ]
   }' -H "Content-Type: application/json"
 
-
 # Contribuição
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues relatando problemas, sugestões ou novos recursos que gostaria de ver. Se deseja contribuir com código, por favor, envie um pull request.
