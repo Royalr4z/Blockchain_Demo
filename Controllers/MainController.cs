@@ -16,11 +16,17 @@ namespace BlockchainDemo.Controllers {
     
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            dynamic dados = JsonConvert.DeserializeObject<dynamic>(jsonString);
+            dynamic? dados = JsonConvert.DeserializeObject<dynamic>(jsonString);
 
             // Obtendo a Lista de Transações
-            List<TransactionModel> lista_t = dados["transactions"].ToObject<List<TransactionModel>>();
+            List<TransactionModel> lista_t;
             List<TransactionModel> transactions = new List<TransactionModel>();
+
+            try {
+                lista_t = dados["transactions"].ToObject<List<TransactionModel>>();
+            } catch {
+                throw new Exception("Nenhuma Transação Enviada");
+            }
 
             Validate validator = new Validate();
 
@@ -31,8 +37,8 @@ namespace BlockchainDemo.Controllers {
                 validator.existsOrError(item.from, @"Informe o remetente - Index: " + index);
                 validator.existsOrError(item.towards, @"Informe o destinatário - Index: " + index);
 
-                validator.existsDecimalOrError(item.value, @"Informe o valor da Transação");
-                validator.existsDecimalOrError(item.rate, @"Informe o valor da Taxa");
+                validator.existsDecimalOrError(item.value, @"Informe o valor da Transação - Index: " + index );
+                validator.existsDecimalOrError(item.rate, @"Informe o valor da Taxa - Index: " + index);
 
                 item.timestamp = DateTime.Now.ToString();
                 item.index = index;
@@ -87,7 +93,7 @@ namespace BlockchainDemo.Controllers {
             }
 
             string json = Encoding.UTF8.GetString(bytes);
-            return JsonConvert.DeserializeObject<List<BlockModel>>(json);
+            return JsonConvert.DeserializeObject<List<BlockModel>>(json) ?? [];
         }
 
         public BlockModel create_block(string previous_hash, List<TransactionModel> list_transaction) {

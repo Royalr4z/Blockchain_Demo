@@ -29,13 +29,13 @@ namespace BlockchainDemo.Controllers {
 
             var MainController = new MainController();
 
-            MainController.get_chain();
-            MainController.create_block(
-                MainController.chain.Last().hash,
-                MainController.mine_block(dadosObtidos)
-            );
-
             try {
+
+                MainController.get_chain();
+                MainController.create_block(
+                    MainController.chain.Last().hash,
+                    MainController.mine_block(dadosObtidos)
+                );
 
                 return Ok(MainController.get_chain());
             } catch (Exception ex) {
