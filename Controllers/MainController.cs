@@ -30,7 +30,7 @@ namespace BlockchainDemo.Controllers {
 
             Validate validator = new Validate();
 
-            int index = 1;
+            int index = 0;
 
             foreach (var item in lista_t) {
 
