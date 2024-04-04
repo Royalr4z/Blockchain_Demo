@@ -18,6 +18,7 @@ namespace BlockchainDemo.Controllers {
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
             dynamic dados = JsonConvert.DeserializeObject<dynamic>(jsonString);
 
+            // Obtendo a Lista de Transações
             List<TransactionModel> lista_t = dados["transactions"].ToObject<List<TransactionModel>>();
             List<TransactionModel> transactions = new List<TransactionModel>();
 
@@ -36,7 +37,7 @@ namespace BlockchainDemo.Controllers {
                 item.timestamp = DateTime.Now.ToString();
                 item.index = index;
 
-                // Serializar o bloco para uma string JSON
+                // Criação de um Hash Único para a Transação (id_transaction)
                 string transactionJson = JsonConvert.SerializeObject(item);
                 string calculatedHash = CalculateSHA256Hash(transactionJson);
                 item.id_transaction = calculatedHash;
@@ -72,9 +73,8 @@ namespace BlockchainDemo.Controllers {
         }
 
         private static List<BlockModel> ConvertHexadecimalToList(string hex) {
-            hex = hex.Replace(" ", "");
 
-            int numberChars = hex.Trim().Length;
+            int numberChars = hex.Length;
             byte[] bytes = new byte[numberChars / 2];
 
             for (int i = 0; i < numberChars; i += 2) {
@@ -129,17 +129,27 @@ namespace BlockchainDemo.Controllers {
                 }
             }
 
+            // Retirando os Espaços em Branco
+            conteudoHexadecimal = conteudoHexadecimal.Replace(" ", "").Trim();
+
             if (chain.Count == 0 && conteudoHexadecimal == "") {
-                    create_block("0", []);
+                create_block("0", []);
             } else if (chain.Count == 0 && conteudoHexadecimal != "") {
-                chain = ConvertHexadecimalToList(conteudoHexadecimal);
+
+                try {
+                    // Convertendo o Hexadecimal para uma Lista de Blocos
+                    chain = ConvertHexadecimalToList(conteudoHexadecimal);
+                } catch {
+                    // Caso o conteúdo Hexadecimal seja Inválido, Criar um Novo Bloco Gênesis
+                    create_block("0", []);
+                }
             }
 
             // Convertendo lista para uma representação Hexadecimal
             byte[] bytes = ConvertListToHexadecimal(chain);
             string hex = BitConverter.ToString(bytes).Replace("-", "");
 
-            // Escreva a representação hexadecimal no arquivo
+            // Salvando a representação hexadecimal no arquivo
             using (StreamWriter sw = new StreamWriter(caminhoArquivo)) {
                 sw.WriteLine(hex);
             }
