@@ -22,3 +22,6 @@ _ReSharper.*
 
 # Hexadecimal Blockchain Database
 blockchain.hex
+
+# .EXE
+*.exe
