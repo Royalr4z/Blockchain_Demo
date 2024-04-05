@@ -56,6 +56,7 @@ namespace BlockchainDemo.Controllers {
         }
 
         public static List<BlockModel> chain = new List<BlockModel>();
+        public static List<dynamic> node = new List<dynamic>();
 
         public string CalculateSHA256Hash(string input) {
 
