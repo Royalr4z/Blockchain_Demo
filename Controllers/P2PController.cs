@@ -15,7 +15,7 @@ namespace BlockchainDemo.Controllers {
     [Route("[controller]")]
     public class P2PController : ControllerBase {
 
-        private async void SendBlockchain() {
+        public async void SendBlockchain() {
 
             var MainController = new MainController();
 
