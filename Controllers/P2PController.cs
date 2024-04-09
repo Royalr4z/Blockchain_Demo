@@ -28,14 +28,16 @@ namespace BlockchainDemo.Controllers {
                         new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json")
                     );
 
+                    // Blockchain em Formato Json
                     string json = JsonConvert.SerializeObject(MainController.chain, Formatting.Indented);
-
-                    // Enviar a solicitação POST
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
+
                     try {
+                        // Enviando Uma Cópia da Blockchain para Todos os Nós
                         HttpResponseMessage response = await client.PostAsync("http://" + MainController.node[i] + ":7000/P2P", content);
                     } catch {
-                        
+                        // Excluindo o Nó caso ele não exista
+                        MainController.node.RemoveAt(i);
                     }
                 }
             }
@@ -74,17 +76,28 @@ namespace BlockchainDemo.Controllers {
                 BadRequest("Blockchain Inválida");
             }
 
-            if (lista_obtida.Count > MainController.chain.Count) {
-                MainController.chain = lista_obtida;
+            // Verificando se as Duas Blockchains são iguais
+            bool validation_1 = lista_obtida[lista_obtida.Count-1].hash ==
+            MainController.chain[MainController.chain.Count-1].hash;
+            bool validation_2 = lista_obtida[lista_obtida.Count-1].index ==
+            MainController.chain[MainController.chain.Count-1].index;
+
+            if (validation_1 && validation_2) {
 
                 return Ok(MainController.get_chain());
-            } else if (lista_obtida.Count < MainController.chain.Count) {
-                SendBlockchain();
+            } else if (lista_obtida.Count > MainController.chain.Count) {
 
+                // Atualizando a Blockchain
+                MainController.chain = lista_obtida;
+                return Ok(MainController.get_chain());
+            } else if (lista_obtida.Count < MainController.chain.Count) {
+
+                // Enviando a Blockchain Atualizada para os Nós
+                SendBlockchain();
                 return Ok(MainController.get_chain());
             }
 
-            return Ok();
+            return BadRequest();
         }
     }
 }
