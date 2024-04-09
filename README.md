@@ -40,6 +40,24 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
       ]
   }' -H "Content-Type: application/json"
 
+### 1. P2P
+
+---
+- **Descrição:** API de Implemetação da Rede P2P
+- **Método HTTP:** [POST]
+- **Exemplo de Requisição:**
+  ```bash
+  curl -X POST http://localhost:7000/P2P -d '[
+    {
+      "index": 0,
+      "nonce": 34554,
+      "timestamp": "08/04/2024 14:48:31",
+      "transactions": [],
+      "hash": "000051df035ebbd74e3092e661c0ed36ea84d727c7fe0b77f6f595d115153687",
+      "previous_hash": "0"
+    }
+  ]' -H "Content-Type: application/json"
+
 # Contribuição
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues relatando problemas, sugestões ou novos recursos que gostaria de ver. Se deseja contribuir com código, por favor, envie um pull request.
