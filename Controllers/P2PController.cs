@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System.Net.Sockets;
 using System.Text;
 using System.IO;
 using System;
@@ -11,56 +12,59 @@ using System;
 
 namespace BlockchainDemo.Controllers {
 
-    [ApiController]
-    [Route("[controller]")]
-    public class P2PController : ControllerBase {
+    public class P2PMethors {
 
-        public async void SendBlockchain() {
+        public static List<string> node = new List<string>();
+        public string filePath = "IPS.txt";
+
+        public void UpdateIPS() {
+
+            if (!File.Exists(filePath)) {
+                File.Create(filePath).Close();
+            }
+
+            node.AddRange(File.ReadAllLines(filePath));
+
+        }
+
+        public void SendBlockchain() {
+
+            UpdateIPS();
 
             var MainController = new MainController();
 
-            for (int i = 0; i < MainController.node.Count; i++) {
+            for (int i = 0; i < node.Count; i++) {
 
-                // Criar um objeto HttpClient
-                using (HttpClient client = new HttpClient()) {
+                int serverPort = 7001;
+                // Convertendo lista para uma representação Hexadecimal
+                byte[] hex = MainController.ConvertListToHexadecimal(MainController.chain);
 
-                    client.DefaultRequestHeaders.Accept.Add(
-                        new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json")
-                    );
-
-                    // Blockchain em Formato Json
-                    string json = JsonConvert.SerializeObject(MainController.chain, Formatting.Indented);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                    try {
-                        // Enviando Uma Cópia da Blockchain para Todos os Nós
-                        HttpResponseMessage response = await client.PostAsync("http://" + MainController.node[i] + ":7000/P2P", content);
-                    } catch {
-                        // Excluindo o Nó caso ele não exista
-                        MainController.node.RemoveAt(i);
+                try {
+                    // Criar uma instância TcpClient e se conecta ao servidor
+                    using (TcpClient client = new TcpClient(node[i], serverPort)) {
+                        // Obtém o stream de rede associado ao TcpClient
+                        NetworkStream stream = client.GetStream();
+                        // Enviar o Hexadecimal
+                        stream.Write(hex, 0, hex.Length);
                     }
+                } catch {
+                    // Excluindo o Nó caso ele não exista
+                    node.RemoveAt(i);
+                    File.WriteAllLines(filePath, node.ToArray());
                 }
             }
         }
+    }
+
+    [ApiController]
+    [Route("[controller]")]
+    public class P2PController : ControllerBase {
 
         [HttpPost]
         public IActionResult ConnectionNode([FromBody] dynamic dadosObtidos) {
 
             var MainController = new MainController();
-
-            // Salvando o IP do nó
-            var ipAddress = HttpContext.Connection.RemoteIpAddress;
-
-            // Verifica se o endereço IP é do tipo IPv6 e mapeia para IPv4, se necessário
-            if (ipAddress != null && ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
-                ipAddress = ipAddress.MapToIPv4();
-            }
-
-            var ipv4Address = ipAddress.ToString();
-
-            if (!MainController.node.Contains(ipv4Address)) {
-                MainController.node.Add(ipv4Address);
-            }
+            var P2PMethors = new P2PMethors();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -93,7 +97,7 @@ namespace BlockchainDemo.Controllers {
             } else if (lista_obtida.Count < MainController.chain.Count) {
 
                 // Enviando a Blockchain Atualizada para os Nós
-                SendBlockchain();
+                P2PMethors.SendBlockchain();
                 return Ok(MainController.get_chain());
             }
 

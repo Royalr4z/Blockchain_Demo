@@ -28,7 +28,7 @@ namespace BlockchainDemo.Controllers {
         public ActionResult<List<TransactionModel>> post_block([FromBody] dynamic dadosObtidos) {
 
             var MainController = new MainController();
-            var P2PController = new P2PController();
+            var P2PMethors = new P2PMethors();
 
             try {
 
@@ -38,7 +38,7 @@ namespace BlockchainDemo.Controllers {
                     MainController.mine_block(dadosObtidos)
                 );
 
-                P2PController.SendBlockchain();
+                P2PMethors.SendBlockchain();
 
                 return Ok(MainController.get_chain());
             } catch (Exception ex) {

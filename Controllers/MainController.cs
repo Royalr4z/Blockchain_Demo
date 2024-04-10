@@ -56,7 +56,6 @@ namespace BlockchainDemo.Controllers {
         }
 
         public static List<BlockModel> chain = new List<BlockModel>();
-        public static List<dynamic> node = new List<dynamic>();
 
         public string CalculateSHA256Hash(string input) {
 
@@ -74,7 +73,7 @@ namespace BlockchainDemo.Controllers {
             }
         }
 
-        private static byte[] ConvertListToHexadecimal(List<BlockModel> lista) {
+        public static byte[] ConvertListToHexadecimal(List<BlockModel> lista) {
             string json = JsonConvert.SerializeObject(lista);
             return Encoding.UTF8.GetBytes(json);
         }
