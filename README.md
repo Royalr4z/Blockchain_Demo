@@ -2,14 +2,37 @@
 
 ## Tecnologias Utilizadas
 
-- **Linguagem:** C#
+- **Linguagem:** C#/C++
 - **Framework:** .NET
 
-## Instalação e Configuração
+## Instalação e Configuração (Fedora Linux)
 
-1. Certifique-se de ter o .NET instalado em sua máquina.
-2. Clone este repositório.
-3. Execute `dotnet run` para iniciar o servidor.
+1. Certifique-se de ter o .NET e o Compilador C++ instalado em sua máquina.
+   - Você pode instalar o .NET seguindo as instruções fornecidas em [dotnet.microsoft.com](https://dotnet.microsoft.com/download)
+   - Para instalar o compilador C++, você pode usar o seguinte comando:
+     ```
+     sudo dnf install gcc-c++
+     ```
+
+2. Clone este repositório:
+     ```
+     git clone https://github.com/Royalr4z/Blockchain_Demo.git
+     ```
+
+3. Instale o curl:
+     ```
+     sudo dnf install libcurl-devel
+     ```
+
+4. Compile e execute o servidor de recebimento da Blockchain via TCP/IP:
+     ```
+     g++ -o server server.cpp -lcurl && ./server
+     ```
+
+5. Execute o seguinte comando para iniciar o servidor de Atualização e Envio:
+     ```
+     dotnet run
+     ```
 
 ## Rotas/APIs Disponíveis
 
