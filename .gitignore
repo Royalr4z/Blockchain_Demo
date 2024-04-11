@@ -27,3 +27,6 @@ blockchain.hex
 *.exe
 server
 
+# Arquivo Com os Ips dos Nós
+IPS.txt
+
