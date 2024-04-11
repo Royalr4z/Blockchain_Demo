@@ -45,7 +45,9 @@ namespace BlockchainDemo.Controllers {
                         // Obtém o stream de rede associado ao TcpClient
                         NetworkStream stream = client.GetStream();
                         // Enviar o Hexadecimal
-                        stream.Write(hex, 0, hex.Length);
+                        string hexString = BitConverter.ToString(hex).Replace("-", "");
+                        byte[] data = Encoding.ASCII.GetBytes(hexString);
+                        stream.Write(data, 0, data.Length);
                     }
                 } catch {
                     // Excluindo o Nó caso ele não exista

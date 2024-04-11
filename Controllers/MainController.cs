@@ -32,6 +32,10 @@ namespace BlockchainDemo.Controllers {
 
             int index = 0;
 
+            if (lista_t.Count() == 0) {
+                throw new Exception("Nenhuma Transação Enviada");
+            }
+
             foreach (var item in lista_t) {
 
                 validator.existsOrError(item.from, @"Informe o remetente - Index: " + index);

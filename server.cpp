@@ -6,18 +6,18 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <algorithm>
 #include <vector>
 #include <curl/curl.h>
 
 
 class MethodIp {
     public:
-        std::vector<std::string> ips;
 
         void updateIps(std::string newIP) {
 
             std::string filepath = "IPS.txt";
-            std::ifstream file(filepath, std::ios_base::app);
+            std::ifstream file(filepath);
 
             // verifica se o arquivo não existe e cria um novo se necessário
             if (!file.is_open()) {
@@ -27,22 +27,23 @@ class MethodIp {
                 file.close();
             }
 
-            std::ofstream updateFile(filepath, std::ios_base::app);
-
-            // Adicionando o ip no final do Arquivo
-            if (updateFile.is_open()) {
-                updateFile << newIP << std::endl;
-                updateFile.close();
-            }
-
-            // Atualizando ips
+            // Lê todos os IPs existentes no arquivo para um vetor
+            std::vector<std::string> ips;
+            std::string ip;
             std::ifstream readFile(filepath);
-            if (readFile.is_open()) {
-                std::string ip;
-                while (std::getline(readFile, ip)) {
-                    ips.push_back(ip);
+            while (readFile >> ip) {
+                ips.push_back(ip);
+            }
+            readFile.close();
+
+            // Verifica se o novoIP já está presente na lista de IPs
+            if (std::find(ips.begin(), ips.end(), newIP) == ips.end()) {
+                // Se o novoIP não estiver na lista, adiciona ao final do arquivo
+                std::ofstream updateFile(filepath, std::ios_base::app);
+                if (updateFile.is_open()) {
+                    updateFile << newIP << std::endl;
+                    updateFile.close();
                 }
-                readFile.close();
             }
         }
 };
@@ -152,6 +153,15 @@ int main() {
 
 
         std::string hex = server();
+        std::string hexWithoutSpaces;
+
+        for (char c : hex) {
+            if (c != ' ') {
+                hexWithoutSpaces.push_back(c);
+            }
+        }
+
+        hex = hexWithoutSpaces;
 
         if (!hex.empty()) {
             Requests(hex);
