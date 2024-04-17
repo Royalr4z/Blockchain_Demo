@@ -10,6 +10,7 @@ using System;
 
 
 namespace BlockchainDemo.Controllers {
+
     public class MainController {
 
         public List<TransactionModel> mine_block(dynamic dadosObtidos) {
@@ -56,6 +57,30 @@ namespace BlockchainDemo.Controllers {
                 index += 1;
             }
 
+            List<TransactionModel> list_mine = new List<TransactionModel>();
+
+            foreach (var transaction in transactions) {
+                get_user();
+
+                var transactions_mine = new TransactionModel {
+                    timestamp = DateTime.Now.ToString(),
+                    index = index,
+                    from = transaction.from,
+                    towards = user.address[0],
+                    value = transaction.rate,
+                    rate = 0
+                };
+
+                // Criação de um Hash Único para a Transação (id_transaction)
+                string transactionJson = JsonConvert.SerializeObject(transactions_mine);
+                string calculatedHash = CalculateSHA256Hash(transactionJson);
+                transactions_mine.id_transaction = calculatedHash;
+
+                list_mine.Add(transactions_mine);
+                index += 1;
+            }
+            transactions.AddRange(list_mine);
+
             return transactions;
         }
 
@@ -77,12 +102,12 @@ namespace BlockchainDemo.Controllers {
             }
         }
 
-        public static byte[] ConvertListToHexadecimal(List<BlockModel> lista) {
+        public static byte[] ConvertListToHexadecimal(dynamic lista) {
             string json = JsonConvert.SerializeObject(lista);
             return Encoding.UTF8.GetBytes(json);
         }
 
-        private static List<BlockModel> ConvertHexadecimalToList(string hex) {
+        public static dynamic ConvertHexadecimalToList(string hex) {
 
             int numberChars = hex.Length;
             byte[] bytes = new byte[numberChars / 2];
@@ -97,7 +122,11 @@ namespace BlockchainDemo.Controllers {
             }
 
             string json = Encoding.UTF8.GetString(bytes);
-            return JsonConvert.DeserializeObject<List<BlockModel>>(json) ?? [];
+            try {
+                return JsonConvert.DeserializeObject<List<BlockModel>>(json) ?? [];
+            } catch {
+                return JsonConvert.DeserializeObject<UserModel>(json) ?? user;
+            }
         }
 
         public BlockModel create_block(string previous_hash, List<TransactionModel> list_transaction) {
@@ -165,6 +194,75 @@ namespace BlockchainDemo.Controllers {
             }
 
             return chain;
+        }
+
+        public static UserModel user = new UserModel();
+
+        private void Create_user() {
+
+            using (ECDsa ecdsa = ECDsa.Create()) {
+
+                // Gera a chave privada
+                byte[] privateKey = ecdsa.ExportECPrivateKey();
+
+                // Gera a chave pública a partir da chave privada
+                byte[] publicKey = ecdsa.ExportSubjectPublicKeyInfo();
+
+                user.private_key = BitConverter.ToString(privateKey).Replace("-", "");
+                user.public_key = BitConverter.ToString(publicKey).Replace("-", "");
+
+                for (int i = 0; i < 15; i++) {
+                    user.index = i;
+
+                    // Criação dos Endereços
+                    string transactionJson = JsonConvert.SerializeObject(user);
+                    string calculatedHash = CalculateSHA256Hash(transactionJson);
+                    user.address.Add(calculatedHash);
+
+                }
+            }
+
+            user.index = 0;
+        }
+
+        public UserModel get_user() {
+
+            string caminhoArquivo = "user.hex";
+            string conteudoHexadecimal = "";
+
+            if (File.Exists(caminhoArquivo)) {
+
+                // Lê o conteúdo hexadecimal do arquivo
+                using (StreamReader sr = new StreamReader(caminhoArquivo)) {
+                    conteudoHexadecimal = sr.ReadToEnd();
+                }
+            }
+
+            // Retirando os Espaços em Branco
+            conteudoHexadecimal = conteudoHexadecimal.Replace(" ", "").Trim();
+
+            if (user.address.Count == 0 && conteudoHexadecimal == "") {
+                Create_user();
+            } else if (user.address.Count == 0 && conteudoHexadecimal != "") {
+
+                try {
+                    // Convertendo o Hexadecimal em Informações do Usuário
+                    user = ConvertHexadecimalToList(conteudoHexadecimal);
+                } catch {
+                    Create_user();
+                }
+            }
+
+            // Convertendo lista para uma representação Hexadecimal
+            byte[] bytes = ConvertListToHexadecimal(user);
+            string hex = BitConverter.ToString(bytes).Replace("-", "");
+
+            // Salvando a representação hexadecimal no arquivo
+            using (StreamWriter sw = new StreamWriter(caminhoArquivo)) {
+                sw.WriteLine(hex);
+            }
+
+            return user;
         }
     }
 }
