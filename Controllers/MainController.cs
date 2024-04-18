@@ -13,6 +13,13 @@ namespace BlockchainDemo.Controllers {
 
     public class MainController {
 
+        /*
+        * Esta função processa os dados enviados pelo método POST, realiza validações e retorna as transações 
+        * em uma lista pronta para serem adicionadas a um bloco.
+        * 
+        * @param {dynamic} dadosObtidos - Dados recebidos do método POST.
+        * @returns {List<TransactionModel>} - Uma lista de transações pronta para ser inserida em um bloco.
+        */
         public List<TransactionModel> mine_block(dynamic dadosObtidos) {
     
             // Convertendo os Dados Obtidos para JSON
@@ -86,6 +93,12 @@ namespace BlockchainDemo.Controllers {
 
         public static List<BlockModel> chain = new List<BlockModel>();
 
+        /*
+        * Esta função Transformar o input em um Hash SHA256.
+        * 
+        * @param {string} input - Dados recebidos que serão convertidos em SHA256.
+        * @returns {string} - Retorna o SHA256.
+        */
         public string CalculateSHA256Hash(string input) {
 
             using (SHA256 sha256 = SHA256.Create()) {
@@ -102,11 +115,23 @@ namespace BlockchainDemo.Controllers {
             }
         }
 
+        /*
+        * Esta função Transformar a Lista em Hexadecimal.
+        * 
+        * @param {dynamic} lista - Dados recebidos que serão convertidos em Hexadecimal.
+        * @returns {byte[]} - Retorna o Hexadecimal.
+        */
         public static byte[] ConvertListToHexadecimal(dynamic lista) {
             string json = JsonConvert.SerializeObject(lista);
             return Encoding.UTF8.GetBytes(json);
         }
 
+        /*
+        * Esta função Transformar o Hexadecimal recebido em uma Lista de Blocos ou em UserModel.
+        * 
+        * @param {string} hex - Dados recebidos que serão convertidos em Hexadecimal.
+        * @returns {dynamic} - Retorna a Lista ou UserModel.
+        */
         public static dynamic ConvertHexadecimalToList(string hex) {
 
             int numberChars = hex.Length;
@@ -129,6 +154,13 @@ namespace BlockchainDemo.Controllers {
             }
         }
 
+        /*
+        * Esta função Cria um Bloco que será inserido na Blockchain.
+        * 
+        * @param {string} previous_hash - Hash do bloco Anterior.
+        * @param {List<TransactionModel>} list_transaction - Lista de Transações que será incluída no Bloco.
+        * @returns {BlockModel} - Retorna o Bloco que vai fazer parte da Blockchain.
+        */
         public BlockModel create_block(string previous_hash, List<TransactionModel> list_transaction) {
 
             var block = new BlockModel() {
@@ -155,6 +187,11 @@ namespace BlockchainDemo.Controllers {
             return block;
         }
 
+        /*
+        * Esta função é responsável por obter a Blockhain do Arquivo blockchain.hex ou da váriavel Chain.
+        * 
+        * @returns {List<BlockModel>} - Retorna a Blockhain.
+        */
         public List<BlockModel> get_chain() {
 
             string caminhoArquivo = "blockchain.hex";
@@ -198,6 +235,13 @@ namespace BlockchainDemo.Controllers {
 
         public static UserModel user = new UserModel();
 
+        /*
+        * 
+        * Esta função responsável pela Criação de uma Chave Privada,
+        * uma Pública e Endereços Ligados a essas Chaves.
+        *
+        * @returns {void}
+        */
         private void Create_user() {
 
             using (ECDsa ecdsa = ECDsa.Create()) {
@@ -225,6 +269,11 @@ namespace BlockchainDemo.Controllers {
             user.index = 0;
         }
 
+        /*
+        * Esta função é responsável por obter a Usuário do Arquivo user.hex ou da váriavel user.
+        * 
+        * @returns {UserModel} - Retorna o Usuário.
+        */
         public UserModel get_user() {
 
             string caminhoArquivo = "user.hex";

@@ -17,6 +17,12 @@ namespace BlockchainDemo.Controllers {
         public static List<string> node = new List<string>();
         public string filePath = "IPS.txt";
 
+        /*
+        * 
+        * Esta função Atualiza o Arquivo IPS.txt com os dados da Variável node.
+        *
+        * @returns {void}
+        */
         public void UpdateIPS() {
 
             if (!File.Exists(filePath)) {
@@ -27,6 +33,12 @@ namespace BlockchainDemo.Controllers {
 
         }
 
+        /*
+        * 
+        * Esta função Envia via TCP/IP a Blockchain Como um Hexadecimal para todos os IPs da Variável node.
+        * 
+        * @returns {void}
+        */
         public void SendBlockchain() {
 
             UpdateIPS();
