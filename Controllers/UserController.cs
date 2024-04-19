@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BlockchainDemo.Models;
-using BlockchainDemo.Config;
+using BlockchainDemo.Services;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
@@ -18,9 +18,9 @@ namespace BlockchainDemo.Controllers {
         [HttpGet]
         public ActionResult<UserModel> GetUser() {
 
-            var MainController = new MainController();
+            var UserServices = new UserServices();
 
-            return Ok(MainController.get_user());
+            return Ok(UserServices.get_user());
         }
 
     }

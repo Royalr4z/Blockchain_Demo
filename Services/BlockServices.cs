@@ -9,9 +9,11 @@ using System.IO;
 using System;
 
 
-namespace BlockchainDemo.Controllers {
+namespace BlockchainDemo.Services {
 
-    public class MainController {
+    public class BlockServices {
+
+        public static List<BlockModel> chain = new List<BlockModel>();
 
         /*
         * Esta função processa os dados enviados pelo método POST, realiza validações e retorna as transações 
@@ -21,7 +23,10 @@ namespace BlockchainDemo.Controllers {
         * @returns {List<TransactionModel>} - Uma lista de transações pronta para ser inserida em um bloco.
         */
         public List<TransactionModel> mine_block(dynamic dadosObtidos) {
-    
+
+            var MainServices = new MainServices();
+            var UserServices = new UserServices();
+
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
             dynamic? dados = JsonConvert.DeserializeObject<dynamic>(jsonString);
@@ -57,7 +62,7 @@ namespace BlockchainDemo.Controllers {
 
                 // Criação de um Hash Único para a Transação (id_transaction)
                 string transactionJson = JsonConvert.SerializeObject(item);
-                string calculatedHash = CalculateSHA256Hash(transactionJson);
+                string calculatedHash = MainServices.CalculateSHA256Hash(transactionJson);
                 item.id_transaction = calculatedHash;
 
                 transactions.Add(item);
@@ -67,20 +72,20 @@ namespace BlockchainDemo.Controllers {
             List<TransactionModel> list_mine = new List<TransactionModel>();
 
             foreach (var transaction in transactions) {
-                get_user();
+                UserServices.get_user();
 
                 var transactions_mine = new TransactionModel {
                     timestamp = DateTime.Now.ToString(),
                     index = index,
                     from = transaction.from,
-                    towards = user.address[0],
+                    towards = UserServices.user.address[0],
                     value = transaction.rate,
                     rate = 0
                 };
 
                 // Criação de um Hash Único para a Transação (id_transaction)
                 string transactionJson = JsonConvert.SerializeObject(transactions_mine);
-                string calculatedHash = CalculateSHA256Hash(transactionJson);
+                string calculatedHash = MainServices.CalculateSHA256Hash(transactionJson);
                 transactions_mine.id_transaction = calculatedHash;
 
                 list_mine.Add(transactions_mine);
@@ -91,68 +96,6 @@ namespace BlockchainDemo.Controllers {
             return transactions;
         }
 
-        public static List<BlockModel> chain = new List<BlockModel>();
-
-        /*
-        * Esta função Transformar o input em um Hash SHA256.
-        * 
-        * @param {string} input - Dados recebidos que serão convertidos em SHA256.
-        * @returns {string} - Retorna o SHA256.
-        */
-        public string CalculateSHA256Hash(string input) {
-
-            using (SHA256 sha256 = SHA256.Create()) {
-
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
-                StringBuilder builder = new StringBuilder();
-
-                for (int i = 0; i < bytes.Length; i++) {
-        
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-
-                return builder.ToString();
-            }
-        }
-
-        /*
-        * Esta função Transformar a Lista em Hexadecimal.
-        * 
-        * @param {dynamic} lista - Dados recebidos que serão convertidos em Hexadecimal.
-        * @returns {byte[]} - Retorna o Hexadecimal.
-        */
-        public static byte[] ConvertListToHexadecimal(dynamic lista) {
-            string json = JsonConvert.SerializeObject(lista);
-            return Encoding.UTF8.GetBytes(json);
-        }
-
-        /*
-        * Esta função Transformar o Hexadecimal recebido em uma Lista de Blocos ou em UserModel.
-        * 
-        * @param {string} hex - Dados recebidos que serão convertidos em Hexadecimal.
-        * @returns {dynamic} - Retorna a Lista ou UserModel.
-        */
-        public static dynamic ConvertHexadecimalToList(string hex) {
-
-            int numberChars = hex.Length;
-            byte[] bytes = new byte[numberChars / 2];
-
-            for (int i = 0; i < numberChars; i += 2) {
-                // Verifica se há caracteres suficientes para formar uma substring de dois caracteres
-                if (i + 1 < numberChars) { 
-                    string substring = hex.Substring(i, 2);
-
-                    bytes[i / 2] = Convert.ToByte(substring, 16);
-                }
-            }
-
-            string json = Encoding.UTF8.GetString(bytes);
-            try {
-                return JsonConvert.DeserializeObject<List<BlockModel>>(json) ?? [];
-            } catch {
-                return JsonConvert.DeserializeObject<UserModel>(json) ?? user;
-            }
-        }
 
         /*
         * Esta função Cria um Bloco que será inserido na Blockchain.
@@ -162,6 +105,8 @@ namespace BlockchainDemo.Controllers {
         * @returns {BlockModel} - Retorna o Bloco que vai fazer parte da Blockchain.
         */
         public BlockModel create_block(string previous_hash, List<TransactionModel> list_transaction) {
+
+            var MainServices = new MainServices();
 
             var block = new BlockModel() {
                 index = chain.Count,
@@ -176,7 +121,7 @@ namespace BlockchainDemo.Controllers {
 
                 // Serializar o bloco para uma string JSON
                 string blockJson = JsonConvert.SerializeObject(block);
-                string calculatedHash = CalculateSHA256Hash(blockJson);
+                string calculatedHash = MainServices.CalculateSHA256Hash(blockJson);
                 block.hash = calculatedHash;
 
                 block.nonce += 1;
@@ -193,6 +138,8 @@ namespace BlockchainDemo.Controllers {
         * @returns {List<BlockModel>} - Retorna a Blockhain.
         */
         public List<BlockModel> get_chain() {
+
+            var MainServices = new MainServices();
 
             string caminhoArquivo = "blockchain.hex";
             string conteudoHexadecimal = "";
@@ -214,7 +161,7 @@ namespace BlockchainDemo.Controllers {
 
                 try {
                     // Convertendo o Hexadecimal para uma Lista de Blocos
-                    chain = ConvertHexadecimalToList(conteudoHexadecimal);
+                    chain = MainServices.ConvertHexadecimalToList(conteudoHexadecimal);
                 } catch {
                     // Caso o conteúdo Hexadecimal seja Inválido, Criar um Novo Bloco Gênesis
                     create_block("0", []);
@@ -222,7 +169,7 @@ namespace BlockchainDemo.Controllers {
             }
 
             // Convertendo lista para uma representação Hexadecimal
-            byte[] bytes = ConvertListToHexadecimal(chain);
+            byte[] bytes = MainServices.ConvertListToHexadecimal(chain);
             string hex = BitConverter.ToString(bytes).Replace("-", "");
 
             // Salvando a representação hexadecimal no arquivo
@@ -231,87 +178,6 @@ namespace BlockchainDemo.Controllers {
             }
 
             return chain;
-        }
-
-        public static UserModel user = new UserModel();
-
-        /*
-        * 
-        * Esta função responsável pela Criação de uma Chave Privada,
-        * uma Pública e Endereços Ligados a essas Chaves.
-        *
-        * @returns {void}
-        */
-        private void Create_user() {
-
-            using (ECDsa ecdsa = ECDsa.Create()) {
-
-                // Gera a chave privada
-                byte[] privateKey = ecdsa.ExportECPrivateKey();
-
-                // Gera a chave pública a partir da chave privada
-                byte[] publicKey = ecdsa.ExportSubjectPublicKeyInfo();
-
-                user.private_key = BitConverter.ToString(privateKey).Replace("-", "");
-                user.public_key = BitConverter.ToString(publicKey).Replace("-", "");
-
-                for (int i = 0; i < 15; i++) {
-                    user.index = i;
-
-                    // Criação dos Endereços
-                    string transactionJson = JsonConvert.SerializeObject(user);
-                    string calculatedHash = CalculateSHA256Hash(transactionJson);
-                    user.address.Add(calculatedHash);
-
-                }
-            }
-
-            user.index = 0;
-        }
-
-        /*
-        * Esta função é responsável por obter a Usuário do Arquivo user.hex ou da váriavel user.
-        * 
-        * @returns {UserModel} - Retorna o Usuário.
-        */
-        public UserModel get_user() {
-
-            string caminhoArquivo = "user.hex";
-            string conteudoHexadecimal = "";
-
-            if (File.Exists(caminhoArquivo)) {
-
-                // Lê o conteúdo hexadecimal do arquivo
-                using (StreamReader sr = new StreamReader(caminhoArquivo)) {
-                    conteudoHexadecimal = sr.ReadToEnd();
-                }
-            }
-
-            // Retirando os Espaços em Branco
-            conteudoHexadecimal = conteudoHexadecimal.Replace(" ", "").Trim();
-
-            if (user.address.Count == 0 && conteudoHexadecimal == "") {
-                Create_user();
-            } else if (user.address.Count == 0 && conteudoHexadecimal != "") {
-
-                try {
-                    // Convertendo o Hexadecimal em Informações do Usuário
-                    user = ConvertHexadecimalToList(conteudoHexadecimal);
-                } catch {
-                    Create_user();
-                }
-            }
-
-            // Convertendo lista para uma representação Hexadecimal
-            byte[] bytes = ConvertListToHexadecimal(user);
-            string hex = BitConverter.ToString(bytes).Replace("-", "");
-
-            // Salvando a representação hexadecimal no arquivo
-            using (StreamWriter sw = new StreamWriter(caminhoArquivo)) {
-                sw.WriteLine(hex);
-            }
-
-            return user;
         }
     }
 }

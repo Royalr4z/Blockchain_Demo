@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BlockchainDemo.Models;
 using BlockchainDemo.Config;
+using BlockchainDemo.Services;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
@@ -18,29 +19,29 @@ namespace BlockchainDemo.Controllers {
         [HttpGet]
         public ActionResult<List<BlockModel>> Get_blockchain() {
 
-            var MainController = new MainController();
+            var BlockServices = new BlockServices();
 
-            return Ok(MainController.get_chain());
+            return Ok(BlockServices.get_chain());
         }
 
 
         [HttpPost]
         public ActionResult<List<TransactionModel>> post_block([FromBody] dynamic dadosObtidos) {
 
-            var MainController = new MainController();
+            var BlockServices = new BlockServices();
             var P2PMethors = new P2PMethors();
 
             try {
 
-                MainController.get_chain();
-                MainController.create_block(
-                    MainController.chain.Last().hash,
-                    MainController.mine_block(dadosObtidos)
+                BlockServices.get_chain();
+                BlockServices.create_block(
+                    BlockServices.chain.Last().hash,
+                    BlockServices.mine_block(dadosObtidos)
                 );
 
                 P2PMethors.SendBlockchain();
 
-                return Ok(MainController.get_chain());
+                return Ok(BlockServices.get_chain());
             } catch (Exception ex) {
 
                 return BadRequest(ex.Message);

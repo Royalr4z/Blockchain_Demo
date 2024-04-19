@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BlockchainDemo.Models;
+using BlockchainDemo.Services;
 using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
@@ -43,13 +44,14 @@ namespace BlockchainDemo.Controllers {
 
             UpdateIPS();
 
-            var MainController = new MainController();
+            var BlockServices = new BlockServices();
+            var MainServices = new MainServices();
 
             for (int i = 0; i < node.Count; i++) {
 
                 int serverPort = 7001;
                 // Convertendo lista para uma representação Hexadecimal
-                byte[] hex = MainController.ConvertListToHexadecimal(MainController.chain);
+                byte[] hex = MainServices.ConvertListToHexadecimal(BlockServices.chain);
 
                 try {
                     // Criar uma instância TcpClient e se conecta ao servidor
@@ -77,7 +79,7 @@ namespace BlockchainDemo.Controllers {
         [HttpPost]
         public IActionResult ConnectionNode([FromBody] dynamic dadosObtidos) {
 
-            var MainController = new MainController();
+            var BlockServices = new BlockServices();
             var P2PMethors = new P2PMethors();
 
             // Convertendo os Dados Obtidos para JSON
@@ -86,7 +88,7 @@ namespace BlockchainDemo.Controllers {
 
             // Obtendo a Lista de Transações
             List<BlockModel> lista_obtida = [];
-            MainController.get_chain();
+            BlockServices.get_chain();
 
             try {
                 lista_obtida = dados.ToObject<List<BlockModel>>();
@@ -96,23 +98,23 @@ namespace BlockchainDemo.Controllers {
 
             // Verificando se as Duas Blockchains são iguais
             bool validation_1 = lista_obtida[lista_obtida.Count-1].hash ==
-            MainController.chain[MainController.chain.Count-1].hash;
+            BlockServices.chain[BlockServices.chain.Count-1].hash;
             bool validation_2 = lista_obtida[lista_obtida.Count-1].index ==
-            MainController.chain[MainController.chain.Count-1].index;
+            BlockServices.chain[BlockServices.chain.Count-1].index;
 
             if (validation_1 && validation_2) {
 
-                return Ok(MainController.get_chain());
-            } else if (lista_obtida.Count > MainController.chain.Count) {
+                return Ok(BlockServices.get_chain());
+            } else if (lista_obtida.Count > BlockServices.chain.Count) {
 
                 // Atualizando a Blockchain
-                MainController.chain = lista_obtida;
-                return Ok(MainController.get_chain());
-            } else if (lista_obtida.Count < MainController.chain.Count) {
+                BlockServices.chain = lista_obtida;
+                return Ok(BlockServices.get_chain());
+            } else if (lista_obtida.Count < BlockServices.chain.Count) {
 
                 // Enviando a Blockchain Atualizada para os Nós
                 P2PMethors.SendBlockchain();
-                return Ok(MainController.get_chain());
+                return Ok(BlockServices.get_chain());
             }
 
             return BadRequest();
