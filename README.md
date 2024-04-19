@@ -63,7 +63,16 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
       ]
   }' -H "Content-Type: application/json"
 
-### 1. P2P
+### 2. user
+
+---
+- **Descrição:** API de Visualização da Private Key, Public Key e dos Address
+- **Método HTTP:** [GET]
+- **Exemplo de Requisição:**
+  ```bash
+  curl -X GET http://localhost:7000/user
+
+### 3. P2P
 
 ---
 - **Descrição:** API de Implemetação da Rede P2P
