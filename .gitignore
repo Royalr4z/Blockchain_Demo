@@ -21,8 +21,7 @@ _ReSharper.*
 .vs/
 
 # Hexadecimal Blockchain Database
-blockchain.hex
-user.hex
+Database/*
 
 # .EXE
 *.exe
