@@ -52,7 +52,23 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
 - **Método HTTP:** [POST]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X POST http://localhost:7000/Blockchain -d '{
+  curl -X POST http://localhost:7000/Blockchain
+
+### 2. Mempool
+
+---
+- **Descrição:** API de Visualização da Mempool
+- **Método HTTP:** [GET]
+- **Exemplo de Requisição:**
+  ```bash
+  curl -X GET http://localhost:7000/mempool
+
+---
+- **Descrição:** API de Inserção de uma nova Transação na Mempool
+- **Método HTTP:** [POST]
+- **Exemplo de Requisição:**
+  ```bash
+  curl -X POST http://localhost:7000/mempool -d '{
       "transactions": [
           { "from": "de", "towards": "para", "value": 0.2, "rate": 0.01 },
           { "from": "de", "towards": "para", "value": 0.7, "rate": 0.01 },
@@ -63,7 +79,7 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
       ]
   }' -H "Content-Type: application/json"
 
-### 2. user
+### 3. user
 
 ---
 - **Descrição:** API de Visualização da Private Key, Public Key e dos Address
@@ -72,7 +88,7 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
   ```bash
   curl -X GET http://localhost:7000/user
 
-### 3. P2P
+### 4. P2P
 
 ---
 - **Descrição:** API de Implemetação da Rede P2P
