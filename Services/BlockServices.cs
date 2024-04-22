@@ -16,62 +16,29 @@ namespace BlockchainDemo.Services {
         public static List<BlockModel> chain = new List<BlockModel>();
 
         /*
-        * Esta função processa os dados enviados pelo método POST, realiza validações e retorna as transações 
-        * em uma lista pronta para serem adicionadas a um bloco.
+        * Esta função Retorna todas as transações que serão inseridas no Bloco, Incluindo as Transações das taxas
+        * para os Mineradores do Bloco.
         * 
-        * @param {dynamic} dadosObtidos - Dados recebidos do método POST.
         * @returns {List<TransactionModel>} - Uma lista de transações pronta para ser inserida em um bloco.
         */
-        public List<TransactionModel> mine_block(dynamic dadosObtidos) {
+        public List<TransactionModel> mine_block() {
+
+            string caminhoArquivo = "Database/mempool.hex";
 
             var MainServices = new MainServices();
             var UserServices = new UserServices();
-
-            // Convertendo os Dados Obtidos para JSON
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            dynamic? dados = JsonConvert.DeserializeObject<dynamic>(jsonString);
-
-            // Obtendo a Lista de Transações
-            List<TransactionModel> lista_t;
-            List<TransactionModel> transactions = new List<TransactionModel>();
-
-            try {
-                lista_t = dados["transactions"].ToObject<List<TransactionModel>>();
-            } catch {
-                throw new Exception("Nenhuma Transação Enviada");
-            }
-
-            Validate validator = new Validate();
-
-            int index = 0;
-
-            if (lista_t.Count() == 0) {
-                throw new Exception("Nenhuma Transação Enviada");
-            }
-
-            foreach (var item in lista_t) {
-
-                validator.existsOrError(item.from, @"Informe o remetente - Index: " + index);
-                validator.existsOrError(item.towards, @"Informe o destinatário - Index: " + index);
-
-                validator.existsDecimalOrError(item.value, @"Informe o valor da Transação - Index: " + index );
-                validator.existsDecimalOrError(item.rate, @"Informe o valor da Taxa - Index: " + index);
-
-                item.timestamp = DateTime.Now.ToString();
-                item.index = index;
-
-                // Criação de um Hash Único para a Transação (id_transaction)
-                string transactionJson = JsonConvert.SerializeObject(item);
-                string calculatedHash = MainServices.CalculateSHA256Hash(transactionJson);
-                item.id_transaction = calculatedHash;
-
-                transactions.Add(item);
-                index += 1;
-            }
+            var MempoolServices = new MempoolServices();
 
             List<TransactionModel> list_mine = new List<TransactionModel>();
+            List<TransactionModel> transactions = new List<TransactionModel>(MempoolServices.mempool);
 
-            foreach (var transaction in transactions) {
+            if (MempoolServices.mempool.Count() == 0) {
+                throw new Exception("Nenhuma Transação na Mempool");
+            }
+
+            int index = MempoolServices.mempool.Last().index + 1;
+
+            foreach (var transaction in MempoolServices.mempool) {
                 UserServices.get_user();
 
                 var transactions_mine = new TransactionModel {
@@ -92,6 +59,17 @@ namespace BlockchainDemo.Services {
                 index += 1;
             }
             transactions.AddRange(list_mine);
+
+            MempoolServices.mempool.RemoveAll(transactions.Contains);
+
+            // Convertendo lista para uma representação Hexadecimal
+            byte[] bytes = MainServices.ConvertListToHexadecimal(MempoolServices.mempool);
+            string hex = BitConverter.ToString(bytes).Replace("-", "");
+
+            // Salvando a representação hexadecimal no arquivo
+            using (StreamWriter sw = new StreamWriter(caminhoArquivo)) {
+                sw.WriteLine(hex);
+            }
 
             return transactions;
         }
@@ -141,7 +119,7 @@ namespace BlockchainDemo.Services {
 
             var MainServices = new MainServices();
 
-            string caminhoArquivo = "blockchain.hex";
+            string caminhoArquivo = "Database/blockchain.hex";
             string conteudoHexadecimal = "";
 
             if (File.Exists(caminhoArquivo)) {

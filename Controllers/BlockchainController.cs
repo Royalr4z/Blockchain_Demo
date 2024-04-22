@@ -26,7 +26,7 @@ namespace BlockchainDemo.Controllers {
 
 
         [HttpPost]
-        public ActionResult<List<TransactionModel>> post_block([FromBody] dynamic dadosObtidos) {
+        public ActionResult<List<TransactionModel>> post_block() {
 
             var BlockServices = new BlockServices();
             var P2PMethors = new P2PMethors();
@@ -36,7 +36,7 @@ namespace BlockchainDemo.Controllers {
                 BlockServices.get_chain();
                 BlockServices.create_block(
                     BlockServices.chain.Last().hash,
-                    BlockServices.mine_block(dadosObtidos)
+                    BlockServices.mine_block()
                 );
 
                 P2PMethors.SendBlockchain();
@@ -51,20 +51,3 @@ namespace BlockchainDemo.Controllers {
     }
 }
 
-
-//
-//
-//        ### Json Esperado ### - Método POST
-//
-//        {
-//            "transactions": [
-//                  { "from": "de", "towards": "para", "value": 0.2, "rate": 0.01 },
-//                  { "from": "de", "towards": "para", "value": 0.7, "rate": 0.01 },
-//                  { "from": "de", "towards": "para", "value": 0.01, "rate": 0.001 },
-//                  { "from": "de", "towards": "para", "value": 0.5, "rate": 0.01 },
-//                  { "from": "de", "towards": "para", "value": 0.1, "rate": 0.01 },
-//                  { "from": "de", "towards": "para", "value": 0.4, "rate": 0.01 }
-//            ]
-//        }
-//
-//

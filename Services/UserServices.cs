@@ -60,7 +60,7 @@ namespace BlockchainDemo.Services {
 
             var MainServices = new MainServices();
 
-            string caminhoArquivo = "user.hex";
+            string caminhoArquivo = "Database/user.hex";
             string conteudoHexadecimal = "";
 
             if (File.Exists(caminhoArquivo)) {

@@ -75,5 +75,32 @@ namespace BlockchainDemo.Services {
                 return JsonConvert.DeserializeObject<UserModel>(json) ?? UserServices.user;
             }
         }
+
+        /*
+        * Esta função Transformar o Hexadecimal recebido em uma Lista de Transações.
+        * 
+        * @param {string} hex - Dados recebidos que serão convertidos em Hexadecimal.
+        * @returns {dynamic} - Retorna a Lista de Transações.
+        */
+        public static dynamic ConvertHexadecimalToTransactions(string hex) {
+
+            var UserServices = new UserServices();
+
+            int numberChars = hex.Length;
+            byte[] bytes = new byte[numberChars / 2];
+
+            for (int i = 0; i < numberChars; i += 2) {
+                // Verifica se há caracteres suficientes para formar uma substring de dois caracteres
+                if (i + 1 < numberChars) { 
+                    string substring = hex.Substring(i, 2);
+
+                    bytes[i / 2] = Convert.ToByte(substring, 16);
+                }
+            }
+
+            string json = Encoding.UTF8.GetString(bytes);
+
+            return JsonConvert.DeserializeObject<List<TransactionModel>>(json) ?? MempoolServices.mempool;
+        }
     }
 }
