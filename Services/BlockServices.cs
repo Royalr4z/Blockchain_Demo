@@ -29,16 +29,20 @@ namespace BlockchainDemo.Services {
             var UserServices = new UserServices();
             var MempoolServices = new MempoolServices();
 
+            // Número máximo de Transações por Bloco
+            int num_max = 1000;
+
+            MempoolServices.get_mempool();
             List<TransactionModel> list_mine = new List<TransactionModel>();
-            List<TransactionModel> transactions = new List<TransactionModel>(MempoolServices.mempool);
+            List<TransactionModel> transactions = new List<TransactionModel>(MempoolServices.mempool.Take(num_max).ToList());
 
             if (MempoolServices.mempool.Count() == 0) {
                 throw new Exception("Nenhuma Transação na Mempool");
             }
 
-            int index = MempoolServices.mempool.Last().index + 1;
+            int index = 0;
 
-            foreach (var transaction in MempoolServices.mempool) {
+            foreach (var transaction in MempoolServices.mempool.Take(num_max).ToList()) {
                 UserServices.get_user();
 
                 var transactions_mine = new TransactionModel {
