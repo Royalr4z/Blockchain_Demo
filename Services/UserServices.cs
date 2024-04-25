@@ -60,8 +60,15 @@ namespace BlockchainDemo.Services {
 
             var MainServices = new MainServices();
 
-            string caminhoArquivo = "Database/user.hex";
+            string pastaDoArquivo = "Database";
+            string caminhoArquivo = pastaDoArquivo + "/user.hex";
             string conteudoHexadecimal = "";
+
+            // Verifica se a pasta não existe antes de tentar criá-la
+            if (!Directory.Exists(pastaDoArquivo)) {
+                // Cria a pasta
+                Directory.CreateDirectory(pastaDoArquivo);
+            }
 
             if (File.Exists(caminhoArquivo)) {
 
