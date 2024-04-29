@@ -28,9 +28,11 @@ namespace BlockchainDemo.Controllers {
         public ActionResult<List<TransactionModel>> Post_mempool([FromBody] dynamic dadosObtidos) {
 
             var MempoolServices = new MempoolServices();
+            var P2PMethors = new P2PMethors();
 
             MempoolServices.get_mempool();
             MempoolServices.add_transaction(dadosObtidos);
+            P2PMethors.SendMempool();
 
             return Ok(MempoolServices.get_mempool());
         }

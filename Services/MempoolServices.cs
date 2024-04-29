@@ -121,6 +121,14 @@ namespace BlockchainDemo.Services {
                 Console.WriteLine(ex);
             }
 
+            if (mempool.Count() == 0) {
+                TransactionModel lista_t = new TransactionModel();
+                lista_t.timestamp = DateTime.Now.ToString();
+                mempool.Add(lista_t);
+            } else if (mempool.Count() != 0) {
+                mempool[0].timestamp = DateTime.Now.ToString();
+            }
+
             return mempool;
         }
     }
