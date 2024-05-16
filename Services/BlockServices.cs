@@ -34,15 +34,15 @@ namespace BlockchainDemo.Services {
 
             MempoolServices.get_mempool();
             List<TransactionModel> list_mine = new List<TransactionModel>();
-            List<TransactionModel> transactions = new List<TransactionModel>(MempoolServices.mempool.Take(num_max).ToList());
+            List<TransactionModel> transactions = new List<TransactionModel>(MempoolServices.mempool.Skip(1).Take(num_max).ToList());
 
-            if (MempoolServices.mempool.Count() == 0) {
+            if (transactions.Count() == 0) {
                 throw new Exception("Nenhuma Transação na Mempool");
             }
 
             int index = 0;
 
-            foreach (var transaction in MempoolServices.mempool.Take(num_max).ToList()) {
+            foreach (var transaction in MempoolServices.mempool.Skip(1).Take(num_max).ToList()) {
                 UserServices.get_user();
 
                 var transactions_mine = new TransactionModel {
