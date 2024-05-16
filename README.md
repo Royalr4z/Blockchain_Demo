@@ -14,14 +14,14 @@
      sudo dnf install gcc-c++
      ```
 
-2. Clone este repositório:
-     ```
-     git clone https://github.com/Royalr4z/Blockchain_Demo.git
-     ```
-
-3. Instale o curl:
+2. Instale o curl:
      ```
      sudo dnf install libcurl-devel
+     ```
+
+3. Clone este repositório:
+     ```
+     git clone https://github.com/Royalr4z/Blockchain_Demo.git
      ```
 
 4. Compile e execute o servidor de recebimento da Blockchain via TCP/IP:
