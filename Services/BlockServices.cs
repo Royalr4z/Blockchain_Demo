@@ -89,24 +89,33 @@ namespace BlockchainDemo.Services {
         public BlockModel create_block(string previous_hash, List<TransactionModel> list_transaction) {
 
             var MainServices = new MainServices();
+            int num_uBits = 5;
 
             var block = new BlockModel() {
                 index = chain.Count,
-                nonce = 1,
+                nonce = 0,
+                uBits = num_uBits,
                 timestamp = DateTime.Now.ToString(),
                 transactions = list_transaction,
-                hash = "0001",
+                hash = "",
                 previous_hash = previous_hash,
             };
 
-            while (block.hash.Substring(0, 4) != "0000") {
+            // Criação do Hash do Bloco
+            block.hash = MainServices.CalculateSHA256Hash(JsonConvert.SerializeObject(block));
+
+            // Verificando se o Hash está de acordo com a dificuldade estabelecida (uBits)
+            while (block.hash.Substring(0, num_uBits) !=  String.Concat(Enumerable.Repeat("0", num_uBits))) {
+
+                block.nonce += 1;
+                block.hash = "";
+                block.timestamp = DateTime.Now.ToString();
 
                 // Serializar o bloco para uma string JSON
                 string blockJson = JsonConvert.SerializeObject(block);
                 string calculatedHash = MainServices.CalculateSHA256Hash(blockJson);
                 block.hash = calculatedHash;
 
-                block.nonce += 1;
             }
 
             chain.Add(block);
