@@ -118,7 +118,7 @@ namespace BlockchainDemo.Services {
 
             for (int i = 0; i < hash1.Length; i++){
                 // Somar os valores byte a byte com overflow
-                result[i] = (byte)( (hash_merkleRoot[i] + (hash1[i] + hash2[i])) % 256);
+                result[i] = (byte)((hash_merkleRoot[i] + (hash1[i] + hash2[i])) % 256);
             }
 
             merkleRoot = BitConverter.ToString(result).Replace("-", "").ToLower();
@@ -144,14 +144,16 @@ namespace BlockchainDemo.Services {
 
             var block = new BlockModel() {
                 index = chain.Count,
-                nonce = 0,
                 uBits = num_uBits,
-                merkleRoot = merkleRoot,
+                nonce = 0,
                 timestamp = DateTime.Now.ToString(),
-                transactions = list_transaction,
+                merkleRoot = merkleRoot,
                 hash = "",
                 previous_hash = previous_hash,
+                transactions = list_transaction,
             };
+
+            merkleRoot = "0000000000000000000000000000000000000000000000000000000000000000";
 
             // Criação do Hash do Bloco
             block.hash = MainServices.CalculateSHA256Hash(JsonConvert.SerializeObject(block));
