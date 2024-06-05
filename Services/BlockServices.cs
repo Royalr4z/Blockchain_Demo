@@ -14,6 +14,7 @@ namespace BlockchainDemo.Services {
     public class BlockServices {
 
         public static List<BlockModel> chain = new List<BlockModel>();
+        public static string merkleRoot = "0000000000000000000000000000000000000000000000000000000000000000";
 
         /*
         * Esta função Retorna todas as transações que serão inseridas no Bloco, Incluindo as Transações das taxas
@@ -82,6 +83,52 @@ namespace BlockchainDemo.Services {
         /*
         * Esta função Cria um Bloco que será inserido na Blockchain.
         * 
+        * @param {string} hash_tnx1 - Hash do bloco Anterior.
+        * @param {string} hash_tnx2 - Lista de Transações que será incluída no Bloco.
+        * @returns {void}
+        */
+        private byte[] convertStringByArray(string hex) {
+
+            int length = hex.Length;
+            byte[] bytes = new byte[length / 2];
+            for (int i = 0; i < length; i += 2) {
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            }
+            return bytes;
+        }
+
+
+        /*
+        * Esta função Cria um Bloco que será inserido na Blockchain.
+        * 
+        * @param {string} hash_tnx1 - Hash do bloco Anterior.
+        * @param {string} hash_tnx2 - Lista de Transações que será incluída no Bloco.
+        * @returns {void}
+        */
+        private void merkle_tree(string hash_tnx1, string hash_tnx2) {
+
+            byte[] hash1 = convertStringByArray(hash_tnx1);
+            byte[] hash2 = convertStringByArray(hash_tnx2);
+            byte[] hash_merkleRoot = convertStringByArray(merkleRoot);
+
+            if (hash1.Length != hash2.Length)
+            throw new ArgumentException("Hashes must be of the same length");
+
+            byte[] result = new byte[hash1.Length];
+
+            for (int i = 0; i < hash1.Length; i++){
+                // Somar os valores byte a byte com overflow
+                result[i] = (byte)( (hash_merkleRoot[i] + (hash1[i] + hash2[i])) % 256);
+            }
+
+            merkleRoot = BitConverter.ToString(result).Replace("-", "").ToLower();
+
+        }
+
+
+        /*
+        * Esta função Cria um Bloco que será inserido na Blockchain.
+        * 
         * @param {string} previous_hash - Hash do bloco Anterior.
         * @param {List<TransactionModel>} list_transaction - Lista de Transações que será incluída no Bloco.
         * @returns {BlockModel} - Retorna o Bloco que vai fazer parte da Blockchain.
@@ -91,10 +138,15 @@ namespace BlockchainDemo.Services {
             var MainServices = new MainServices();
             int num_uBits = 5;
 
+            for (int i = 0; i < list_transaction.Count; i += 2) {
+                merkle_tree(list_transaction[i].id_transaction, list_transaction[i+1].id_transaction);
+            }
+
             var block = new BlockModel() {
                 index = chain.Count,
                 nonce = 0,
                 uBits = num_uBits,
+                merkleRoot = merkleRoot,
                 timestamp = DateTime.Now.ToString(),
                 transactions = list_transaction,
                 hash = "",
