@@ -81,10 +81,9 @@ namespace BlockchainDemo.Services {
 
 
         /*
-        * Esta função Cria um Bloco que será inserido na Blockchain.
+        * Esta função Converte string em um array de Bytes.
         * 
-        * @param {string} hash_tnx1 - Hash do bloco Anterior.
-        * @param {string} hash_tnx2 - Lista de Transações que será incluída no Bloco.
+        * @param {string} hex - Hash que vai ser convertido.
         * @returns {void}
         */
         private byte[] convertStringByArray(string hex) {
@@ -99,10 +98,11 @@ namespace BlockchainDemo.Services {
 
 
         /*
-        * Esta função Cria um Bloco que será inserido na Blockchain.
+        * Esta função soma o hash da primeira transação com o da segunda e, em seguida, adiciona o
+        * resultado ao merkleRoot para, no final, obter o hash Merkle do bloco.
         * 
-        * @param {string} hash_tnx1 - Hash do bloco Anterior.
-        * @param {string} hash_tnx2 - Lista de Transações que será incluída no Bloco.
+        * @param {string} hash_tnx1 - Hash da Transação N° 1.
+        * @param {string} hash_tnx2 - Hash da Transação N° 2.
         * @returns {void}
         */
         private void merkle_tree(string hash_tnx1, string hash_tnx2) {
