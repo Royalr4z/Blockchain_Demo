@@ -98,11 +98,13 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
   curl -X POST http://localhost:7000/P2P -d '[
     {
       "index": 0,
-      "nonce": 34554,
-      "timestamp": "08/04/2024 14:48:31",
-      "transactions": [],
-      "hash": "000051df035ebbd74e3092e661c0ed36ea84d727c7fe0b77f6f595d115153687",
-      "previous_hash": "0"
+      "uBits": 5,
+      "nonce": 810948,
+      "timestamp": "07/06/2024 11:53:36",
+      "merkleRoot": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "00000dde1af66f8421e7c407244d264f56c58c5a10c4b5484fe1ca602c2496b4",
+      "previous_hash": "0",
+      "transactions": []
     }
   ]' -H "Content-Type: application/json"
 
