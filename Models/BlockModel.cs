@@ -9,6 +9,7 @@ namespace BlockchainDemo.Models {
         public string merkleRoot { get; set; }
         public string hash { get; set; }
         public string previous_hash { get; set; }
+        public int txnCounter { get; set; }
         public List<TransactionModel> transactions { get; set; }
 
         public BlockModel() {
@@ -19,6 +20,7 @@ namespace BlockchainDemo.Models {
             merkleRoot = string.Empty;
             hash = string.Empty;
             previous_hash = string.Empty;
+            txnCounter = 0;
             transactions = [];
         }
 

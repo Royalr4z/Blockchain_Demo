@@ -150,6 +150,7 @@ namespace BlockchainDemo.Services {
                 merkleRoot = merkleRoot,
                 hash = "",
                 previous_hash = previous_hash,
+                txnCounter = list_transaction.Count(),
                 transactions = list_transaction,
             };
 
