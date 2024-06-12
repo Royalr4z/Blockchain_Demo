@@ -5,6 +5,7 @@ namespace BlockchainDemo.Models {
         public int index { get; set; }
         public int uBits { get; set; }
         public int nonce { get; set; }
+        public int confirmations { get; set; }
         public string timestamp { get; set; }
         public string merkleRoot { get; set; }
         public string hash { get; set; }
@@ -16,6 +17,7 @@ namespace BlockchainDemo.Models {
             index = 0;
             uBits = 0;
             nonce = 0;
+            confirmations = 0;
             timestamp = string.Empty;
             merkleRoot = string.Empty;
             hash = string.Empty;

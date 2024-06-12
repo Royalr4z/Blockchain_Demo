@@ -173,6 +173,7 @@ namespace BlockchainDemo.Services {
 
             }
 
+            block.confirmations = 1;
             chain.Add(block);
 
             return block;
