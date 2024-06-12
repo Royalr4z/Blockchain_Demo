@@ -99,10 +99,11 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
     {
       "index": 0,
       "uBits": 5,
-      "nonce": 1124781,
-      "timestamp": "11/06/2024 12:00:58",
+      "nonce": 315695,
+      "confirmations": 1,
+      "timestamp": "12/06/2024 12:53:13",
       "merkleRoot": "0000000000000000000000000000000000000000000000000000000000000000",
-      "hash": "00000753b7751da679acea0856a5187914b6b1d2ebd9e6c245e6d5e0ef69c204",
+      "hash": "00000018cf922967b599cca5075576da4b3ffee4392197bccfab0783daf5ca9e",
       "previous_hash": "0",
       "txnCounter": 0,
       "transactions": []
