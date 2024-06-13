@@ -127,12 +127,12 @@ namespace BlockchainDemo.Controllers {
 
             // Obtendo a Lista de Transações ou a Lista de Blocos
             List<TransactionModel> lista_mempool = new List<TransactionModel>();
-            List<BlockModel> lista_blockchain = new List<BlockModel>();
+            List<BlockModel> Received_blockchain = new List<BlockModel>();
             BlockServices.get_chain();
             MempoolServices.get_mempool();
 
             try {
-                lista_blockchain = dados.ToObject<List<BlockModel>>();
+                Received_blockchain = dados.ToObject<List<BlockModel>>();
                 is_blockchain = true;
             } catch {
                 try {
@@ -144,26 +144,35 @@ namespace BlockchainDemo.Controllers {
 
             if (is_blockchain) {
 
+                int lastIndexReceived = Received_blockchain.Count - 1;
+                int lastIndexBlockServicesChain = BlockServices.chain.Count - 1;
+
                 // Verificando se as Duas Blockchains são iguais
-                bool validation_1 = lista_blockchain[lista_blockchain.Count-1].hash ==
-                BlockServices.chain[BlockServices.chain.Count-1].hash;
-                bool validation_2 = lista_blockchain[lista_blockchain.Count-1].index ==
-                BlockServices.chain[BlockServices.chain.Count-1].index;
+                bool Equal_blockchains = Received_blockchain[lastIndexReceived].hash == BlockServices.chain[lastIndexBlockServicesChain].hash &&
+                    Received_blockchain[lastIndexReceived].index == BlockServices.chain[lastIndexBlockServicesChain].index;
 
-                if (validation_1 && validation_2) {
+                if (Equal_blockchains) {
 
+                    int receivedConfirmations = Received_blockchain[lastIndexReceived].confirmations;
+                    int blockServicesConfirmations = BlockServices.chain[lastIndexBlockServicesChain].confirmations;
+
+                    // Atualizar confirmations se o valor recebido for maior
+                    BlockServices.chain[lastIndexBlockServicesChain].confirmations = (receivedConfirmations > blockServicesConfirmations) ? receivedConfirmations : blockServicesConfirmations;
                     return Ok(BlockServices.get_chain());
-                } else if (lista_blockchain.Count > BlockServices.chain.Count) {
+                } else if (Received_blockchain[lastIndexReceived].index > BlockServices.chain[lastIndexBlockServicesChain].index &&
+                    Received_blockchain[lastIndexReceived].previous_hash == BlockServices.chain[lastIndexBlockServicesChain].hash) {
 
                     // Atualizando a Blockchain
-                    BlockServices.chain = lista_blockchain;
+                    Received_blockchain[lastIndexReceived].confirmations += 1;
+                    BlockServices.chain = Received_blockchain;
                     return Ok(BlockServices.get_chain());
-                } else if (lista_blockchain.Count < BlockServices.chain.Count) {
 
-                    // Enviando a Blockchain Atualizada para os Nós
+                } else if (Received_blockchain[lastIndexReceived].index < BlockServices.chain[lastIndexBlockServicesChain].index) {
+
                     P2PMethors.SendBlockchain();
                     return Ok(BlockServices.get_chain());
                 }
+
             } else if (!is_blockchain) {
 
                 // Verificando se as Duas Mempool são iguais
