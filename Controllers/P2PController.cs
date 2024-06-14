@@ -179,19 +179,19 @@ namespace BlockchainDemo.Controllers {
                 bool Equal_mempool = Received_mempool[Received_mempool.Count-1].timestamp == MempoolServices.mempool[MempoolServices.mempool.Count-1].timestamp &&
                     Received_mempool[Received_mempool.Count-1].index == MempoolServices.mempool[MempoolServices.mempool.Count-1].index;
 
-                // Convertendo strings para DateTime
-                DateTime dateTime1 = DateTime.ParseExact(Received_mempool[Received_mempool.Count-1].timestamp, "dd/MM/yyyy HH:mm:ss", null);
-                DateTime dateTime2 = DateTime.ParseExact(MempoolServices.mempool[MempoolServices.mempool.Count-1].timestamp, "dd/MM/yyyy HH:mm:ss", null);
+                // Obtendo o timestamp da mempool recebida e da mempool local
+                long dateTime_received = Received_mempool[Received_mempool.Count-1].timestamp;
+                long dateTime_local = MempoolServices.mempool[MempoolServices.mempool.Count-1].timestamp;
 
                 if (Equal_mempool) {
 
                     return Ok(MempoolServices.get_mempool());
-                } else if (dateTime1 > dateTime2) {
+                } else if (dateTime_received > dateTime_local) {
 
                     // Atualizando a Mempool
                     MempoolServices.mempool = Received_mempool;
                     return Ok(MempoolServices.get_mempool());
-                } else if (dateTime1 < dateTime2) {
+                } else if (dateTime_received < dateTime_local) {
 
                     // Enviando a Mempool Atualizada para os Nós
                     P2PMethors.SendMempool();

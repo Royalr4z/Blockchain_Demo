@@ -4,7 +4,7 @@ namespace BlockchainDemo.Models {
 
         public int index { get; set; }
         public string id_transaction { get; set; }
-        public string timestamp { get; set; }
+        public long timestamp { get; set; }
         public string from { get; set; }
         public string towards { get; set; }
         public decimal value { get; set; }
@@ -13,7 +13,7 @@ namespace BlockchainDemo.Models {
         public TransactionModel() {
             index = 0;
             id_transaction = string.Empty;
-            timestamp = string.Empty;
+            timestamp = 0;
             from = string.Empty;
             towards = string.Empty;
             value = 0;

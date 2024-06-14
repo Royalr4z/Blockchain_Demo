@@ -62,7 +62,7 @@ namespace BlockchainDemo.Services {
                 validator.existsDecimalOrError(item.value, @"Informe o valor da Transação - Index: " + index );
                 validator.existsDecimalOrError(item.rate, @"Informe o valor da Taxa - Index: " + index);
 
-                item.timestamp = DateTime.Now.ToString();
+                item.timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 item.index = index;
 
                 // Criação de um Hash Único para a Transação (id_transaction)
@@ -123,10 +123,10 @@ namespace BlockchainDemo.Services {
 
             if (mempool.Count() == 0) {
                 TransactionModel lista_t = new TransactionModel();
-                lista_t.timestamp = DateTime.Now.ToString();
+                lista_t.timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 mempool.Add(lista_t);
             } else if (mempool.Count() != 0) {
-                mempool[0].timestamp = DateTime.Now.ToString();
+                mempool[0].timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             }
 
             return mempool;

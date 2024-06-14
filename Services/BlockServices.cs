@@ -47,7 +47,7 @@ namespace BlockchainDemo.Services {
                 UserServices.get_user();
 
                 var transactions_mine = new TransactionModel {
-                    timestamp = DateTime.Now.ToString(),
+                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                     index = index,
                     from = transaction.from,
                     towards = UserServices.user.address[0],
@@ -146,7 +146,7 @@ namespace BlockchainDemo.Services {
                 index = chain.Count,
                 uBits = num_uBits,
                 nonce = 0,
-                timestamp = DateTime.Now.ToString(),
+                timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                 merkleRoot = merkleRoot,
                 hash = "",
                 previous_hash = previous_hash,
@@ -163,7 +163,7 @@ namespace BlockchainDemo.Services {
 
                 block.nonce += 1;
                 block.hash = "";
-                block.timestamp = DateTime.Now.ToString();
+                block.timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
                 // Serializar o bloco para uma string JSON
                 string blockJson = JsonConvert.SerializeObject(block);
