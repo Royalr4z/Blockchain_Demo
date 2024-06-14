@@ -36,11 +36,11 @@ namespace BlockchainDemo.Controllers {
 
         /*
         * 
-        * Esta função Envia via TCP/IP a Blockchain Como um Hexadecimal para todos os IPs da Variável node.
+        * Esta função Envia via TCP/IP o último Bloco Como um Hexadecimal para todos os IPs da Variável node.
         * 
         * @returns {void}
         */
-        public void SendBlockchain() {
+        public void SendBlock() {
 
             UpdateIPS();
 
@@ -51,7 +51,8 @@ namespace BlockchainDemo.Controllers {
 
                 int serverPort = 7001;
                 // Convertendo lista para uma representação Hexadecimal
-                byte[] hex = MainServices.ConvertListToHexadecimal(BlockServices.chain);
+                int lastIndex = BlockServices.chain.Count() - 1;
+                byte[] hex = MainServices.ConvertListToHexadecimal(BlockServices.chain[lastIndex]);
 
                 try {
                     // Criar uma instância TcpClient e se conecta ao servidor
@@ -119,79 +120,76 @@ namespace BlockchainDemo.Controllers {
             var BlockServices = new BlockServices();
             var MempoolServices = new MempoolServices();
             var P2PMethors = new P2PMethors();
-            bool is_blockchain = false;
+            bool is_block = false;
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
             dynamic? dados = JsonConvert.DeserializeObject<dynamic>(jsonString);
 
             // Obtendo a Lista de Transações ou a Lista de Blocos
-            List<TransactionModel> lista_mempool = new List<TransactionModel>();
-            List<BlockModel> Received_blockchain = new List<BlockModel>();
+            List<TransactionModel> Received_mempool = new List<TransactionModel>();
+            var Received_block = new BlockModel();
             BlockServices.get_chain();
             MempoolServices.get_mempool();
 
             try {
-                Received_blockchain = dados.ToObject<List<BlockModel>>();
-                is_blockchain = true;
+                Received_block = dados.ToObject<BlockModel>();
+                is_block = true;
             } catch {
                 try {
-                    lista_mempool = dados.ToObject<List<TransactionModel>>();
+                    Received_mempool = dados.ToObject<List<TransactionModel>>();
                 } catch {
                     BadRequest("Conteúdo Obtido Inválida");
                 }
             }
 
-            if (is_blockchain) {
+            if (is_block) {
 
-                int lastIndexReceived = Received_blockchain.Count - 1;
-                int lastIndexBlockServicesChain = BlockServices.chain.Count - 1;
+                int lastIndexBlockchain = BlockServices.chain.Count - 1;
 
                 // Verificando se as Duas Blockchains são iguais
-                bool Equal_blockchains = Received_blockchain[lastIndexReceived].hash == BlockServices.chain[lastIndexBlockServicesChain].hash &&
-                    Received_blockchain[lastIndexReceived].index == BlockServices.chain[lastIndexBlockServicesChain].index;
+                bool Equal_blockchains = Received_block.hash == BlockServices.chain[lastIndexBlockchain].hash &&
+                    Received_block.index == BlockServices.chain[lastIndexBlockchain].index;
 
                 if (Equal_blockchains) {
 
-                    int receivedConfirmations = Received_blockchain[lastIndexReceived].confirmations;
-                    int blockServicesConfirmations = BlockServices.chain[lastIndexBlockServicesChain].confirmations;
+                    int receivedConfirmations = Received_block.confirmations;
+                    int blockServicesConfirmations = BlockServices.chain[lastIndexBlockchain].confirmations;
 
                     // Atualizar confirmations se o valor recebido for maior
-                    BlockServices.chain[lastIndexBlockServicesChain].confirmations = (receivedConfirmations > blockServicesConfirmations) ? receivedConfirmations : blockServicesConfirmations;
+                    BlockServices.chain[lastIndexBlockchain].confirmations = (receivedConfirmations > blockServicesConfirmations) ? receivedConfirmations : blockServicesConfirmations;
                     return Ok(BlockServices.get_chain());
-                } else if (Received_blockchain[lastIndexReceived].index > BlockServices.chain[lastIndexBlockServicesChain].index &&
-                    Received_blockchain[lastIndexReceived].previous_hash == BlockServices.chain[lastIndexBlockServicesChain].hash) {
+                } else if (Received_block.index > BlockServices.chain[lastIndexBlockchain].index &&
+                    Received_block.previous_hash == BlockServices.chain[lastIndexBlockchain].hash) {
 
                     // Atualizando a Blockchain
-                    Received_blockchain[lastIndexReceived].confirmations += 1;
-                    BlockServices.chain = Received_blockchain;
+                    Received_block.confirmations += 1;
+                    BlockServices.chain.Add(Received_block);
                     return Ok(BlockServices.get_chain());
 
-                } else if (Received_blockchain[lastIndexReceived].index < BlockServices.chain[lastIndexBlockServicesChain].index) {
+                } else if (Received_block.index < BlockServices.chain[lastIndexBlockchain].index) {
 
-                    P2PMethors.SendBlockchain();
+                    P2PMethors.SendBlock();
                     return Ok(BlockServices.get_chain());
                 }
 
-            } else if (!is_blockchain) {
+            } else if (!is_block) {
 
                 // Verificando se as Duas Mempool são iguais
-                bool validation_1 = lista_mempool[lista_mempool.Count-1].timestamp ==
-                MempoolServices.mempool[MempoolServices.mempool.Count-1].timestamp;
-                bool validation_2 = lista_mempool[lista_mempool.Count-1].index ==
-                MempoolServices.mempool[MempoolServices.mempool.Count-1].index;
+                bool Equal_mempool = Received_mempool[Received_mempool.Count-1].timestamp == MempoolServices.mempool[MempoolServices.mempool.Count-1].timestamp &&
+                    Received_mempool[Received_mempool.Count-1].index == MempoolServices.mempool[MempoolServices.mempool.Count-1].index;
 
                 // Convertendo strings para DateTime
-                DateTime dateTime1 = DateTime.ParseExact(lista_mempool[lista_mempool.Count-1].timestamp, "dd/MM/yyyy HH:mm:ss", null);
+                DateTime dateTime1 = DateTime.ParseExact(Received_mempool[Received_mempool.Count-1].timestamp, "dd/MM/yyyy HH:mm:ss", null);
                 DateTime dateTime2 = DateTime.ParseExact(MempoolServices.mempool[MempoolServices.mempool.Count-1].timestamp, "dd/MM/yyyy HH:mm:ss", null);
 
-                if (validation_1 && validation_2) {
+                if (Equal_mempool) {
 
                     return Ok(MempoolServices.get_mempool());
                 } else if (dateTime1 > dateTime2) {
 
                     // Atualizando a Mempool
-                    MempoolServices.mempool = lista_mempool;
+                    MempoolServices.mempool = Received_mempool;
                     return Ok(MempoolServices.get_mempool());
                 } else if (dateTime1 < dateTime2) {
 

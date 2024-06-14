@@ -39,7 +39,7 @@ namespace BlockchainDemo.Controllers {
                     BlockServices.mine_block()
                 );
 
-                P2PMethors.SendBlockchain();
+                P2PMethors.SendBlock();
 
                 return Ok(BlockServices.get_chain());
             } catch (Exception ex) {
