@@ -100,13 +100,13 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
       "index": 0,
       "uBits": 5,
       "nonce": 315695,
-      "confirmations": 1,
       "timestamp": "12/06/2024 12:53:13",
       "merkleRoot": "0000000000000000000000000000000000000000000000000000000000000000",
       "hash": "00000018cf922967b599cca5075576da4b3ffee4392197bccfab0783daf5ca9e",
       "previous_hash": "0",
       "txnCounter": 0,
-      "transactions": []
+      "transactions": [],
+      "confirmations": 1
     }
   ]' -H "Content-Type: application/json"
 
