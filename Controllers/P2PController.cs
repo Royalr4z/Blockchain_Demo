@@ -165,6 +165,12 @@ namespace BlockchainDemo.Controllers {
                     // Atualizando a Blockchain
                     Received_block.confirmations += 1;
                     BlockServices.chain.Add(Received_block);
+
+                    foreach (var Received_txn in Received_block.transactions) {
+                        // Removendo as Transações que foi inserida na blockchain
+                        MempoolServices.mempool.RemoveAll(txn => txn.id_transaction == Received_txn.id_transaction);
+                    }
+
                     return Ok(BlockServices.get_chain());
 
                 } else if (Received_block.index < BlockServices.chain[lastIndexBlockchain].index) {
@@ -180,8 +186,8 @@ namespace BlockchainDemo.Controllers {
                     Received_mempool[Received_mempool.Count-1].index == MempoolServices.mempool[MempoolServices.mempool.Count-1].index;
 
                 // Obtendo o timestamp da mempool recebida e da mempool local
-                long dateTime_received = Received_mempool[Received_mempool.Count-1].timestamp;
-                long dateTime_local = MempoolServices.mempool[MempoolServices.mempool.Count-1].timestamp;
+                long dateTime_received = Received_mempool[0].timestamp;
+                long dateTime_local = MempoolServices.mempool[0].timestamp;
 
                 if (Equal_mempool) {
 
