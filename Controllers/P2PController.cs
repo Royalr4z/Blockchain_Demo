@@ -119,6 +119,7 @@ namespace BlockchainDemo.Controllers {
         public IActionResult ConnectionNode([FromBody] dynamic dadosObtidos) {
             var BlockServices = new BlockServices();
             var MempoolServices = new MempoolServices();
+            var MainServices = new MainServices();
             var P2PMethors = new P2PMethors();
             bool is_block = false;
 
@@ -169,6 +170,15 @@ namespace BlockchainDemo.Controllers {
                     foreach (var Received_txn in Received_block.transactions) {
                         // Removendo as Transações que foi inserida na blockchain
                         MempoolServices.mempool.RemoveAll(txn => txn.id_transaction == Received_txn.id_transaction);
+                    }
+
+                    // Convertendo lista para uma representação Hexadecimal
+                    byte[] bytes = MainServices.ConvertListToHexadecimal(MempoolServices.mempool);
+                    string hex = BitConverter.ToString(bytes).Replace("-", "");
+
+                    // Salvando a representação hexadecimal no arquivo
+                    using (StreamWriter sw = new StreamWriter("Database/mempool.hex")) {
+                        sw.WriteLine(hex);
                     }
 
                     return Ok(BlockServices.get_chain());
